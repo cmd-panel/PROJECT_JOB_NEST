@@ -1,0 +1,44 @@
+<!-- <h2>Browse Jobs</h2>
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Filter</button>
+</form>
+
+<ul>
+    {% for job in jobs %}
+        <li>
+            <strong>{{ job.title }}</strong> at {{ job.company }}<br>
+            Location: {{ job.location }} | Category: {{ job.category }} | Experience: {{ job.experience_level }}<br>
+            Posted: {{ job.posted_at|date:"Y-m-d" }}
+        </li>
+    {% empty %}
+        <li>No jobs found.</li>
+    {% endfor %}
+</ul> -->
+<div class="max-w-4xl mx-auto p-6">
+    <h2 class="text-3xl font-bold mb-6 text-gray-800">Browse Jobs</h2>
+
+    <form method="get" class="bg-white shadow-md rounded-lg p-4 mb-8">
+        <div class="space-y-4">
+            {{ form.as_p }}
+        </div>
+        <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+            Filter
+        </button>
+    </form>
+
+    <ul class="space-y-6">
+        {% for job in jobs %}
+            <li class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-900">{{ job.title }}</h3>
+                <p class="text-gray-700">{{ job.company }}</p>
+                <p class="text-sm text-gray-600 mt-1">
+                    📍 {{ job.location }} | 🏷️ {{ job.category }} | 🎓 {{ job.experience_level }}
+                </p>
+                <p class="text-xs text-gray-400 mt-2">📅 Posted: {{ job.posted_at|date:"Y-m-d" }}</p>
+            </li>
+        {% empty %}
+            <li class="text-gray-500">No jobs found.</li>
+        {% endfor %}
+    </ul>
+</div>

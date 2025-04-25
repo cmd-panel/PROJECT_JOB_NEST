@@ -20,3 +20,39 @@ class JobPosting(models.Model):
 
     def __str__(self):
         return f"{self.title} at {self.company}"
+
+from django.contrib.auth.models import User
+
+class Application(models.Model):
+    STATUS_CHOICES = [
+        ('Under Review', 'Under Review'),
+        ('Shortlisted', 'Shortlisted'),
+        ('Rejected', 'Rejected'),
+    ]
+    applicant = models.ForeignKey(User, on_delete=models.CASCADE)
+    position = models.CharField(max_length=100)
+    resume = models.FileField(upload_to='resumes/')  # optional, if used
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Under Review')
+
+    def __str__(self):
+        return f"{self.applicant.username} - {self.position}"
+    
+import uuid
+from django.db import models
+
+class Portfolio(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user_id = models.CharField(max_length=100)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    link = models.TextField(help_text="Separate multiple links with commas")
+
+
+    def __str__(self):
+        return f"{self.title} - {self.user_id}"
+class Certificate(models.Model):
+    portfolio = models.ForeignKey(Portfolio, on_delete=models.CASCADE, related_name='certificates')
+    image = models.ImageField(upload_to='certificates/')
+
+    def __str__(self):
+        return f"Certificate for {self.portfolio.title}"

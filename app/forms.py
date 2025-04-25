@@ -34,3 +34,27 @@ class JobFilterForm(forms.Form):
     category = forms.CharField(required=False, label="Category")
     experience_level = forms.CharField(required=False, label="Experience Level")
     keyword = forms.CharField(required=False, label="Keyword")
+    
+from .models import Application
+
+class StatusUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['status']
+class ApplicationForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['applicant', 'position', 'resume']
+        
+from .models import Portfolio
+
+class PortfolioForm(forms.ModelForm):
+    class Meta:
+        model = Portfolio
+        fields = ['user_id', 'title', 'description', 'link']
+        widgets = {
+            'user_id': forms.TextInput(attrs={'placeholder': 'Enter your user ID'}),
+            'title': forms.TextInput(attrs={'placeholder': 'e.g. Software Developer'}),
+            'description': forms.Textarea(attrs={'placeholder': 'Describe your job experience...'}),
+            'link': forms.URLInput(attrs={'placeholder': 'https://example.com/project'}),
+        }

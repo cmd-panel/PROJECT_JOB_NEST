@@ -179,3 +179,58 @@ def delete_portfolio(request, pk):
         return JsonResponse({"message": "Portfolio deleted successfully"})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+    
+
+
+#wasib
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
+from .models import CV
+from .forms import CVForm
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+import io
+import os
+from django.conf import settings
+from django.contrib.staticfiles import finders
+
+
+
+
+
+def create_cv(request):
+    if request.method == 'POST':
+        form = CVForm(request.POST)
+        if form.is_valid():
+            cv = form.save()
+
+            # Generate PDF
+            template = get_template('cv_template.html')
+            html = template.render({'cv': cv})
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="{cv.name}_cv.pdf"'
+
+            pisa_status = pisa.CreatePDF(html, dest=response)
+
+            if pisa_status.err:
+                return HttpResponse('We had some errors <pre>' + html + '</pre>')
+            return response
+    else:
+        form = CVForm()
+
+    return render(request, 'cv_form.html', {'form': form})
+
+
+
+def applicant(request):
+    if request.method == 'POST':
+        form = ApplicationForm(request.POST)
+        if form.is_valid():
+            applicant = form.save()
+            return redirect('browse_jobs')  # Redirect to the same page after saving
+    else:
+        form = ApplicationForm()
+    id = request.user.id
+    
+    return render(request, 'applicant.html', {'form': form, 'id':id})
+###wasib end

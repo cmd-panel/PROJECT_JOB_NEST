@@ -1,6 +1,11 @@
 from django.urls import path
 from . import views
 
+#wasib
+from django.conf import settings
+from django.conf.urls.static import static
+#wasib
+
 urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
@@ -17,5 +22,10 @@ urlpatterns = [
     # Optional API endpoints
     path('api/add/', views.add_portfolio_api),
     path('api/update/', views.update_portfolio),
+
+
+    #wasib
+    path('create_cv/', views.create_cv, name='create_cv'),
+    path('applicant/', views.applicant , name='applicant'),
 ]
 

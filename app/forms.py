@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Profile
+from .models import Profile, CV, Application
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
@@ -58,3 +58,14 @@ class PortfolioForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'placeholder': 'Describe your job experience...'}),
             'link': forms.URLInput(attrs={'placeholder': 'https://example.com/project'}),
         }
+
+
+
+#wasib
+
+
+class CVForm(forms.ModelForm):
+    class Meta:
+        model = CV
+        fields = ['name', 'email', 'phone', 'education', 'experience', 'skills']  
+

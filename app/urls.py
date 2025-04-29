@@ -17,5 +17,10 @@ urlpatterns = [
     # Optional API endpoints
     path('api/add/', views.add_portfolio_api),
     path('api/update/', views.update_portfolio),
+
+
+
+    #nafisa
+    path('update_profile', views.update_profile, name='update_profile'),
 ]
 

@@ -27,7 +27,8 @@ urlpatterns = [
 
 
     #nafisa
-    path('update_profile', views.update_profile, name='update_profile'),
+    path('update_profile/', views.update_profile, name='update_profile'),
+    path('create_job/', views.create_job, name='create_job'),
 
     #wasib
     path('create_cv/', views.create_cv, name='create_cv'),

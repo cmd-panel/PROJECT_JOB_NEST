@@ -208,6 +208,28 @@ def update_profile(request):
         
         redirect ('browse_jobs')
 
+def create_job(request):
+    if request.method == "GET":
+        return render(request, 'create_job.html', {})
+    
+    elif request.method == "POST":
+        title= request.POST.get("title")
+
+        company= request.POST.get("company")
+
+        location= request.POST.get("location")
+
+        category= request.POST.get("category")
+
+        experience= request.POST.get("experience")
+
+        JobPosting.objects.create(title=title, company=company, location=location, category=category, experience_level=experience)
+        
+        redirect ('home')
+
+    redirect('create_job')
+
+
 
 
 #wasib

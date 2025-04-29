@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .forms import UserRegistrationForm ,  UserLoginForm
-from .models import JobPosting
+from .models import JobPosting, UserDetails
 from .forms import JobFilterForm
 from django.db.models import Q
 
@@ -182,6 +182,37 @@ def delete_portfolio(request, pk):
     
 
 
+<<<<<<< Updated upstream
+=======
+<<<<<<< HEAD
+
+
+#nafisa
+
+def update_profile(request):
+    if request.method == "GET":
+        return render(request, 'update_profile.html', {})
+    
+    elif request.method == "POST":
+        profile_picture= request.POST.get("profile_picture")
+
+        bio= request.POST.get("bio")
+
+        skills= request.POST.get("skills")
+
+        date_of_birth= request.POST.get("date_of_birth")
+
+        location= request.POST.get("location")
+
+        my_id= request.user.id
+        new_obj= UserDetails.objects.filter(id=my_id)
+        new_obj.update(profile_picture=profile_picture, bio=bio, skills= skills, date_of_birth=date_of_birth)
+        
+        redirect ('browse_jobs')
+
+
+=======
+>>>>>>> Stashed changes
 #wasib
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
@@ -233,4 +264,9 @@ def applicant(request):
     id = request.user.id
     
     return render(request, 'applicant.html', {'form': form, 'id':id})
+<<<<<<< Updated upstream
 ###wasib end
+=======
+###wasib end
+>>>>>>> ef666ce57ef545b55f26b2ced8a2a5a94bebf7cb
+>>>>>>> Stashed changes

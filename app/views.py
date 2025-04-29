@@ -203,8 +203,8 @@ def update_profile(request):
         location= request.POST.get("location")
 
         my_id= request.user.id
-        new_obj= UserDetails.objects.filter(id=my_id)
-        new_obj.update(profile_picture=profile_picture, bio=bio, skills= skills, date_of_birth=date_of_birth)
+        new_obj= UserDetails.objects.filter(user_id=my_id)
+        new_obj.update(profile_picture=profile_picture, bio=bio, skills= skills, date_of_birth=date_of_birth, location=location)
         
         redirect ('browse_jobs')
 

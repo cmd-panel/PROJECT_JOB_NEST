@@ -72,3 +72,19 @@ class CV(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class UserDetails(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100,blank=True, null=True)
+    bio = models.TextField()
+    location = models.CharField(max_length=100)
+    skills = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    profile_picture = models.ImageField(upload_to='photos/', blank=True, null=True)
+    
+    date_of_birth = models.DateField(blank=True, null=True)
+    user_type = models.CharField(max_length=100, choices=[('admin', 'Admin'), ('user', 'User'), ('premium_user', 'Premium')], default='user')
+
+    def __str__(self):
+        return self.name

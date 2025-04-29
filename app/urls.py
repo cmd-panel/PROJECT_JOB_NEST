@@ -24,20 +24,14 @@ urlpatterns = [
     path('api/update/', views.update_portfolio),
 
 
-<<<<<<< Updated upstream
-    #wasib
-    path('create_cv/', views.create_cv, name='create_cv'),
-    path('applicant/', views.applicant , name='applicant'),
-=======
-<<<<<<< HEAD
+
 
     #nafisa
     path('update_profile', views.update_profile, name='update_profile'),
-=======
+
     #wasib
     path('create_cv/', views.create_cv, name='create_cv'),
     path('applicant/', views.applicant , name='applicant'),
->>>>>>> ef666ce57ef545b55f26b2ced8a2a5a94bebf7cb
->>>>>>> Stashed changes
+
 ]
 

@@ -182,9 +182,7 @@ def delete_portfolio(request, pk):
     
 
 
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
+
 
 
 #nafisa
@@ -211,8 +209,7 @@ def update_profile(request):
         redirect ('browse_jobs')
 
 
-=======
->>>>>>> Stashed changes
+
 #wasib
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
@@ -264,9 +261,6 @@ def applicant(request):
     id = request.user.id
     
     return render(request, 'applicant.html', {'form': form, 'id':id})
-<<<<<<< Updated upstream
 ###wasib end
-=======
-###wasib end
->>>>>>> ef666ce57ef545b55f26b2ced8a2a5a94bebf7cb
->>>>>>> Stashed changes
+
+

@@ -69,3 +69,9 @@ class CVForm(forms.ModelForm):
         model = CV
         fields = ['name', 'email', 'phone', 'education', 'experience', 'skills']  
 
+
+class ApplicationForm1(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['position', 'resume']
+

@@ -39,10 +39,7 @@
         
         <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="mb-3">
-                <input type="hidden" name="applicant" value="{{ form.applicant.value|default: id }}" class="form-control" id="id_name">
-            </div>
-
+            
             <div class="mb-3">
                 <label for="id_email" class="form-label">position</label>
                 {{ form.position }}

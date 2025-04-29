@@ -202,8 +202,8 @@ def update_profile(request):
 
         location= request.POST.get("location")
 
-        my_id= request.user.id
-        new_obj= UserDetails.objects.filter(user_id=my_id)
+        my_id= request.user
+        new_obj= UserDetails.objects.get(user_id=my_id)
         new_obj.update(profile_picture=profile_picture, bio=bio, skills= skills, date_of_birth=date_of_birth, location=location)
         
         redirect ('browse_jobs')
@@ -236,7 +236,7 @@ def create_job(request):
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from .models import CV
-from .forms import CVForm
+from .forms import CVForm, ApplicationForm1
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 import io
@@ -274,15 +274,17 @@ def create_cv(request):
 
 def applicant(request):
     if request.method == 'POST':
-        form = ApplicationForm(request.POST)
+        form = ApplicationForm1(request.POST, request.FILES)
         if form.is_valid():
-            applicant = form.save()
+            application = form.save(commit=False)
+            application.applicant = request.user
+            application.save()
             return redirect('browse_jobs')  # Redirect to the same page after saving
-    else:
-        form = ApplicationForm()
-    id = request.user.id
     
-    return render(request, 'applicant.html', {'form': form, 'id':id})
+    form = ApplicationForm1()
+    
+    
+    return render(request, 'applicant.html', {'form': form})
 ###wasib end
 
 

@@ -84,7 +84,7 @@
             <!--  wasib  -->
             <div class="card-footer bg-white text-center py-3">
                     
-                    <form method="POST" class="d-inline" action="{% url 'applicant' %}">
+                    <form method="GET" class="d-inline" action="{% url 'applicant' %}">
                         {% csrf_token %}
                         <input type="hidden" name="job_id" value="{{ job.id }}">
                         

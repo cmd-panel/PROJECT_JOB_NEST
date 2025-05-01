@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.urls import path
 from . import views
 
@@ -29,6 +30,11 @@ urlpatterns = [
     #nafisa
     path('update_profile/', views.update_profile, name='update_profile'),
     path('create_job/', views.create_job, name='create_job'),
+    path('suggestions/', views.suggestions, name='suggestions'),
+    path('chat/<str:username>/', views.chat_view, name='chat'),
+    path('inbox/', views.chat_list, name='inbox'),
+    path('messages_send/', views.messages_send, name='messages_send'),
+    path('change_password/',views.change_password, name='change_password'),
 
     #wasib
     path('create_cv/', views.create_cv, name='create_cv'),

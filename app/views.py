@@ -2,7 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from .forms import UserRegistrationForm ,  UserLoginForm
-from .models import JobPosting, UserDetails
+from .models import JobPosting, UserDetails, Message
 from .forms import JobFilterForm
 from django.db.models import Q
 #wasib
@@ -260,6 +260,38 @@ def create_job(request):
     return render(request, 'app/create_job.html', {})
 
 
+@login_required
+def suggestions(request):
+    if request.method == "GET":
+        
+        my_id = request.user
+        temp = UserDetails.objects.get(user_id=my_id)
+        temp_location = temp.location
+        temp_skills = temp.skills
+        
+        
+        user_list = UserDetails.objects.filter(Q(location__icontains=temp_location) | Q(skills__icontains=temp_skills)).order_by('-created_at')
+        data={
+            'user_list': user_list,
+            
+        }
+
+        return render(request, 'app/suggestions.html', data)
+            
+    my_id = request.user
+    temp = UserDetails.objects.get(user_id=my_id)
+    temp_location = temp.location
+    temp_skills = temp.skills
+    
+        
+    user_list = UserDetails.objects.filter(Q(location__icontains=temp_location) | Q(skills__icontains=temp_skills)).order_by('-created_at')
+    data={
+            'user_list': user_list,
+            
+        }
+
+    return render(request, 'app/suggestions.html', data)
+
 
 
 #wasib
@@ -468,5 +500,100 @@ def select_video_count(request, course_id):
 
 
 ###wasib end
+
+
+#nafisa
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
+from django.db.models import Q
+
+from django.utils import timezone
+from datetime import timedelta
+
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db import IntegrityError
+import requests
+from django.core.paginator import Paginator
+
+@login_required
+def chat_view(request, username):
+    user2 = get_object_or_404(User, username=username)
+    messages = Message.objects.filter(
+        Q(sender=request.user, receiver=user2) |
+        Q(sender=user2, receiver=request.user)
+    ).order_by('timestamp')
+
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            Message.objects.create(sender=request.user, receiver=user2, content=content)
+
+    return render(request, 'app/chat.html', {
+        'messages': messages,
+        'user2': user2,
+    })
+
+@login_required
+def chat_list(request):
+    
+    messages = Message.objects.filter(Q(sender=request.user) | Q(receiver=request.user))
+    users = set()
+    for msg in messages:
+        if msg.sender != request.user:
+            users.add(msg.sender)
+        if msg.receiver != request.user:
+            users.add(msg.receiver)
+    return render(request, 'app/chat_list.html', {'users': users})
+
+@login_required
+def messages_send(request):
+    if request.method == "GET":
+        return redirect('browse_jobs')
+    elif request.method == "POST":
+        user_id = request.POST.get('user_id')
+        my_id = request.user.id
+        receiver=User.objects.get(id=user_id)
+        sender=request.user
+        content= request.POST.get('content')
+        new_obj=Message.objects.create(sender=sender, receiver=receiver, content=content)
+        new_obj.save()
+        return redirect('inbox')
+    return redirect('browse_jobs')
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        current_password = request.POST.get('current_password')
+        new_password = request.POST.get('new_password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if not request.user.check_password(current_password):
+            messages.error(request, 'Current password is incorrect.')
+            return redirect('change_password')
+        
+
+        if new_password != confirm_password:
+            messages.error(request, 'New passwords do not match.')
+            return redirect('change_password')
+
+        request.user.set_password(new_password)
+        request.user.save()
+
+        # Prevent user from being logged out after password change
+        update_session_auth_hash(request, request.user)
+
+        messages.success(request, 'Password changed successfully.')
+        return redirect('browse_jobs')  # Or wherever you want to go after success
+
+    return render(request, 'app/change_password.html')
+
+
+
+#end nafisa
 
 

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Profile, CV, Application
+from .models import Profile, CV, Application, Course, CourseVideo
 
 class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
@@ -74,4 +74,17 @@ class ApplicationForm1(forms.ModelForm):
     class Meta:
         model = Application
         fields = ['position', 'resume']
+
+
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['title', 'description']
+
+class CourseVideoForm(forms.ModelForm):
+    class Meta:
+        model = CourseVideo
+        fields = ['title', 'youtube_url']
+
+#end wasib
 

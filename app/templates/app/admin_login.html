@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - JobNest</title>
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Katibeh&family=Jacques+Francois&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            position: relative;
+            width: 1280px;
+            height: 720px;
+            background: #FFFFFF;
+            font-family: 'Katibeh', cursive;
+        }
+
+        .bg-image {
+            position: absolute;
+            width: 1122px;
+            height: 669px;
+            left: -174px;
+            top: 116px;
+            background: url('/static/images/vecteezy_looking-for-candidate-for-job-interview-magnifier-looking_5925093.jpg') no-repeat;
+            background-size: cover;
+            border-radius: 284px;
+        }
+
+        .form-box {
+            position: absolute;
+            width: 367px;
+            height: 444px;
+            left: 850px;
+            top: 145px;
+            background: #D1D7E8;
+            border-radius: 37px;
+        }
+
+        .app-title {
+            position: absolute;
+            width: 223px;
+            height: 77px;
+            left: 85px;
+            top: 105px;
+            font-family: 'Itim', cursive;
+            font-size: 64px;
+            line-height: 77px;
+            color: #343669;
+        }
+
+        .tagline {
+            position: absolute;
+            width: 617px;
+            height: 29px;
+            left: 85px;
+            top: 199px;
+            font-family: 'Itim', cursive;
+            font-size: 24px;
+            color: #000000;
+        }
+
+        .login-title {
+            position: absolute;
+            left: 993px;
+            top: 256px;
+            font-size: 32px;
+            color: #000000;
+        }
+
+        .label {
+            position: absolute;
+            font-size: 20px;
+            color: #9EA8B0;
+        }
+
+        .line {
+            position: absolute;
+            width: 238px;
+            border: 1px solid #96A8B6;
+            transform: rotate(-0.24deg);
+        }
+
+        .input-email {
+            top: 329px;
+            left: 915px;
+        }
+
+        .input-password {
+            top: 372px;
+            left: 915px;
+        }
+
+        .line-email {
+            top: 348px;
+            left: 915px;
+        }
+
+        .line-password {
+            top: 391px;
+            left: 915px;
+        }
+
+        button {
+            background-color: #99ABD5;
+            color: #FFF8F8;
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .login-btn-text {
+            font-size: 24px;
+            color: #FFF8F8;
+        }
+
+        .create-link {
+            position: absolute;
+            top: 510px;
+            left: 924px;
+            font-size: 15px;
+            color: #9EA8B0;
+        }
+
+        .lang {
+            position: absolute;
+            left: 1127px;
+            top: 34px;
+            font-family: 'Jacques Francois', serif;
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .eye-icon {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            left: 1123px;
+            top: 367px;
+            background: url('/static/images/eye-password-hide-icon-2048x2048-c8pmhg0p.png') no-repeat;
+            background-size: cover;
+        }
+
+        form {
+            position: absolute;
+            top: 310px;
+            left: 915px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #96A8B6;
+            width: 220px;
+            font-size: 16px;
+            padding: 5px;
+        }
+
+        input:focus {
+            outline: none;
+        }
+
+        .hidden-btn {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-image"></div>
+    <div class="form-box"></div>
+    <div class="app-title">JobNest</div>
+    <div class="tagline">A place for gigs, employment, and professional development</div>
+    <div class="login-title">Log in</div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <label class="label input-email">User Name</label>
+        {{ form.username }}
+        <div class="line line-email"></div>
+
+        <label class="label input-password">Password</label>
+        {{ form.password }}
+        <div class="line line-password"></div>
+
+        <div class="eye-icon"></div>
+
+        <button type="submit">Log in</button>
+        
+    </form>
+
+    
+
+    <div class="lang">English (UK)</div>
+</body>
+</html>
+

@@ -5,6 +5,10 @@ from .forms import UserRegistrationForm ,  UserLoginForm
 from .models import JobPosting, UserDetails
 from .forms import JobFilterForm
 from django.db.models import Q
+#wasib
+from django.contrib.auth.decorators import login_required
+from .decorators import admin_required
+#end wasib
 
 def register_view(request):
     if request.method == 'POST':
@@ -44,7 +48,9 @@ def dashboard_view(request):
 
 def browse_jobs(request):
     form = JobFilterForm(request.GET or None)
-    jobs = JobPosting.objects.all()
+    #wasib
+    jobs = JobPosting.objects.filter(status=1).order_by('-posted_at')
+    #wasib end
 
     if form.is_valid():
         location = form.cleaned_data.get('location')
@@ -70,6 +76,8 @@ def browse_jobs(request):
         'jobs': jobs
     }
     return render(request, 'app/browse_jobs.html', context)
+
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from .models import Application
@@ -186,31 +194,51 @@ def delete_portfolio(request, pk):
 
 
 #nafisa
-
+@login_required
 def update_profile(request):
     if request.method == "GET":
-        return render(request, 'update_profile.html', {})
-    
+        return render(request, 'app/update_profile.html', {})
+
     elif request.method == "POST":
-        profile_picture= request.POST.get("profile_picture")
+        profile_picture = request.FILES.get("profile_picture")
+        bio = request.POST.get("bio")
+        name=request.POST.get("name")
+        skills = request.POST.get("skills")
+        date_of_birth = request.POST.get("date_of_birth")
+        location = request.POST.get("location")
 
-        bio= request.POST.get("bio")
+        my_id = request.user
+        new_obj = UserDetails.objects.filter(user_id=my_id).first()
 
-        skills= request.POST.get("skills")
+        if new_obj:
+            if profile_picture:
+                new_obj.profile_picture = profile_picture
+            new_obj.bio = bio
+            new_obj.skills = skills
+            new_obj.date_of_birth = date_of_birth
+            new_obj.location = location
+            new_obj.name=name
+            new_obj.save()
+        else:
+            new_obj = UserDetails.objects.create(
+                user_id=my_id,
+                profile_picture=profile_picture if profile_picture else None,
+                bio=bio,
+                skills=skills,
+                date_of_birth=date_of_birth,
+                location=location,
+                name=name
+            )
 
-        date_of_birth= request.POST.get("date_of_birth")
+        return redirect('browse_jobs')  
 
-        location= request.POST.get("location")
+    return render(request, 'app/update_profile.html', {})
 
-        my_id= request.user
-        new_obj= UserDetails.objects.get(user_id=my_id)
-        new_obj.update(profile_picture=profile_picture, bio=bio, skills= skills, date_of_birth=date_of_birth, location=location)
-        
-        redirect ('browse_jobs')
 
+@login_required
 def create_job(request):
     if request.method == "GET":
-        return render(request, 'create_job.html', {})
+        return render(request, 'app/create_job.html', {})
     
     elif request.method == "POST":
         title= request.POST.get("title")
@@ -223,11 +251,13 @@ def create_job(request):
 
         experience= request.POST.get("experience")
 
-        JobPosting.objects.create(title=title, company=company, location=location, category=category, experience_level=experience)
-        
-        redirect ('home')
+        my_user=request.user
 
-    redirect('create_job')
+        JobPosting.objects.create(posted_by= my_user, title=title, company=company, location=location, category=category, experience_level=experience)
+        
+        return redirect ('browse_jobs')
+
+    return render(request, 'app/create_job.html', {})
 
 
 
@@ -235,19 +265,20 @@ def create_job(request):
 #wasib
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from .models import CV
-from .forms import CVForm, ApplicationForm1
+from .models import CV, Course, CourseVideo
+from .forms import CVForm, ApplicationForm1, CourseForm, CourseVideoForm
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 import io
 import os
 from django.conf import settings
 from django.contrib.staticfiles import finders
+from django.forms import modelformset_factory
 
 
 
 
-
+@login_required
 def create_cv(request):
     if request.method == 'POST':
         form = CVForm(request.POST)
@@ -255,7 +286,7 @@ def create_cv(request):
             cv = form.save()
 
             # Generate PDF
-            template = get_template('cv_template.html')
+            template = get_template('app/cv_template.html')
             html = template.render({'cv': cv})
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = f'attachment; filename="{cv.name}_cv.pdf"'
@@ -268,10 +299,10 @@ def create_cv(request):
     else:
         form = CVForm()
 
-    return render(request, 'cv_form.html', {'form': form})
+    return render(request, 'app/cv_form.html', {'form': form})
 
 
-
+@login_required
 def applicant(request):
     if request.method == 'POST':
         form = ApplicationForm1(request.POST, request.FILES)
@@ -284,7 +315,158 @@ def applicant(request):
     form = ApplicationForm1()
     
     
-    return render(request, 'applicant.html', {'form': form})
+    return render(request, 'app/applicant.html', {'form': form})
+
+
+
+@login_required
+@admin_required
+def admin_home(request):
+    if request.method == "GET":
+        # Fetch all job posts from the database
+        
+        job_posts = JobPosting.objects.filter(status=0).order_by('-posted_at')
+        data={
+            'job_lists': job_posts,
+            
+        }
+
+        return render(request, 'app/admin_home.html', data)
+    job_posts = JobPosting.objects.filter(status=0).order_by('-posted_at')
+    data={
+            'job_lists': job_posts,
+            
+        }
+
+    return render(request, 'app/admin_home.html', data)
+
+@login_required
+@admin_required
+def admin_post_allow(request):
+    if request.method == "GET":
+        return redirect('admin_home')
+    elif request.method == "POST":
+        job_id = request.POST.get('job_id')
+        job_post = JobPosting.objects.get(id=job_id)
+        job_post.status = 1
+        job_post.save()
+        return redirect('admin_home')  
+    return redirect('admin_home')  
+
+
+@login_required
+@admin_required
+def admin_post_reject(request):
+    if request.method == "GET":
+        return redirect('admin_home')
+    elif request.method == "POST":
+        job_id = request.POST.get('job_id')
+        job_post = JobPosting.objects.get(id=job_id)
+        job_post.delete()  
+        return redirect('admin_home')  
+    return redirect('admin_home')
+
+
+@login_required
+def course_list(request):
+    courses = Course.objects.all()
+    return render(request, 'app/course_list.html', {'courses': courses})
+
+
+@login_required
+def course_detail(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    return render(request, 'app/course_detail.html', {'course': course})
+
+def admin_login_view(request):
+    
+    if request.method == 'POST':
+        form = UserLoginForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            my_user=request.user
+            my_details=UserDetails.objects.get(user_id=my_user)
+            if my_details:
+                type=my_details.user_type
+                if type=='admin':
+                    request.session['user_type'] = 'admin'
+                    return redirect('admin_home')
+                else:
+                    return redirect('browse_jobs')
+            else:
+                return redirect('browse_jobs')
+              
+    else:
+        form = UserLoginForm()
+    return render(request, 'app/admin_login.html', {'form': form})
+
+
+
+
+
+
+
+
+@login_required
+@admin_required
+def add_course(request):
+    if request.method == 'POST':
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            course = form.save()
+            
+            return redirect('select_video_count', course_id=course.id)
+
+    else:
+        form = CourseForm()
+    return render(request, 'app/add_course.html', {'form': form})
+
+
+@login_required
+@admin_required
+def add_course_videos(request, course_id):
+    course = Course.objects.get(id=course_id)
+
+    count = int(request.GET.get('count', 2))  
+    VideoFormSet = modelformset_factory(CourseVideo, form=CourseVideoForm, extra=count)
+
+    if request.method == 'POST':
+        formset = VideoFormSet(request.POST, queryset=CourseVideo.objects.none())
+        if formset.is_valid():
+            for form in formset:
+                if form.cleaned_data:
+                    video = form.save(commit=False)
+                    video.course = course
+                    video.save()
+            return redirect('course_detail', course_id=course.id)
+    else:
+        formset = VideoFormSet(queryset=CourseVideo.objects.none())
+
+    return render(request, 'app/add_course_with_videos.html', {'formset': formset, 'course': course})
+
+
+
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+
+@login_required
+@admin_required
+def select_video_count(request, course_id):
+    course = Course.objects.get(id=course_id)
+
+    if request.method == 'POST':
+        try:
+            num_videos = int(request.POST.get('num_videos', 1))
+            url = reverse('add_course_videos', args=[course_id])
+            return HttpResponseRedirect(f"{url}?count={num_videos}")
+        except ValueError:
+            pass  # optional: add a message or error
+
+    return render(request, 'app/select_video_count.html', {'course': course})
+
+
+
 ###wasib end
 
 

@@ -11,6 +11,8 @@ class Profile(models.Model):
         app_label = 'app'
     def __str__(self):
         return self.user.username
+    
+
 class JobPosting(models.Model):
     title = models.CharField(max_length=200)
     company = models.CharField(max_length=200)
@@ -19,9 +21,13 @@ class JobPosting(models.Model):
     experience_level = models.CharField(max_length=50)
     description = models.TextField()
     posted_at = models.DateTimeField(auto_now_add=True)
+    #wasib
+    status = models.IntegerField(default=0)
+    posted_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.title} at {self.company}"
+
 
 
 
@@ -35,6 +41,8 @@ class Application(models.Model):
     position = models.CharField(max_length=100)
     resume = models.FileField(upload_to='resumes/')  # optional, if used
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Under Review')
+    #wasib it can be used or by default it will be none
+    job_id = models.ForeignKey(JobPosting, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.applicant.username} - {self.position}"
@@ -77,8 +85,8 @@ class CV(models.Model):
 class UserDetails(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100,blank=True, null=True)
-    bio = models.TextField()
-    location = models.CharField(max_length=100)
+    bio = models.TextField(blank=True, null=True)
+    location = models.CharField(max_length=100, blank=True, null=True)
     skills = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     profile_picture = models.ImageField(upload_to='photos/', blank=True, null=True)
@@ -88,3 +96,30 @@ class UserDetails(models.Model):
 
     def __str__(self):
         return self.name
+
+class Course(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+from urllib.parse import urlparse, parse_qs
+
+class CourseVideo(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='videos')
+    title = models.CharField(max_length=200)
+    youtube_url = models.URLField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.course.title} - {self.title}"
+    
+    def youtube_id(self):
+        parsed_url = urlparse(self.youtube_url)
+        if parsed_url.hostname in ["youtu.be"]:
+            return parsed_url.path[1:]
+        if parsed_url.hostname in ["www.youtube.com", "youtube.com"]:
+            return parse_qs(parsed_url.query).get("v", [None])[0]
+        return ""

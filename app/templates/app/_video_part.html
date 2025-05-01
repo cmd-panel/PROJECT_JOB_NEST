@@ -1,0 +1,58 @@
+<div class="accordion-item">
+    <h2 class="accordion-header" id="heading{{ index }}">
+        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ index }}" aria-expanded="true" aria-controls="collapse{{ index }}">
+            Part {{ index }}: {{ video.title }}
+        </button>
+    </h2>
+    <div id="collapse{{ index }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ index }}" data-bs-parent="#videoAccordion">
+        <div class="accordion-body">
+            <div class="ratio ratio-16x9 mb-3">
+                <!--<iframe src="https://www.youtube.com/embed/{{ video.youtube_url|cut:'https://www.youtube.com/watch?v=' }}" title="{{ video.title }}" allowfullscreen></iframe>-->
+                <!--<iframe src="https://www.youtube.com/embed/{{ video.youtube_id }}" title="{{ video.title }}" allowfullscreen></iframe>-->
+
+
+
+
+
+
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="heading{{ index }}">
+                    <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ index }}" aria-expanded="true" aria-controls="collapse{{ index }}">
+                        Part {{ index }}: {{ video.title }}
+                    </button>
+                </h2>
+                <div id="collapse{{ index }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ index }}" data-bs-parent="#videoAccordion">
+                    <div class="accordion-body">
+                        {% if video.youtube_id %}
+                            <div class="ratio ratio-16x9 mb-3">
+                                <iframe 
+                                    src="https://www.youtube.com/embed/{{ video.youtube_id }}" 
+                                    title="{{ video.title }}" 
+                                    allowfullscreen 
+                                    class="w-100"
+                                ></iframe>
+                            </div>
+                        {% else %}
+                            <p class="text-danger">Invalid YouTube URL</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+
+
+
+                <!---->
+
+            </div>
+        </div>
+    </div>
+</div>

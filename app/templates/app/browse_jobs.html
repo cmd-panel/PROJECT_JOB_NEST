@@ -28,6 +28,9 @@
           <!-- Menu for Logged-in Users -->
           <li><a class="dropdown-item" href="{% url 'create_cv' %}">GENERATE CV</a></li>
           <li><a class="dropdown-item" href="{% url 'update_profile' %}">Update Profile</a></li>
+          <li><a class="dropdown-item" href="{% url 'create_job' %}">Create Job</a></li>
+          <li><a class="dropdown-item" href="{% url 'course_list' %}">Courses List</a></li>
+          <li><a class="dropdown-item" href="{% url 'logout' %}">LOGOUT</a></li>
 
 
         
@@ -78,10 +81,8 @@
                     📍 {{ job.location }} | 🏷️ {{ job.category }} | 🎓 {{ job.experience_level }}
                 </p>
                 <p class="text-xs text-gray-400 mt-2">📅 Posted: {{ job.posted_at|date:"Y-m-d" }}</p>
-            </li>
 
-
-            <!--  wasib  -->
+                <!--  wasib  -->
             <div class="card-footer bg-white text-center py-3">
                     
                     <form method="GET" class="d-inline" action="{% url 'applicant' %}">
@@ -95,6 +96,11 @@
 
 
             <!--  wasib  -->
+
+            </li>
+
+
+            
         {% empty %}
             <li class="text-gray-500">No jobs found.</li>
         {% endfor %}

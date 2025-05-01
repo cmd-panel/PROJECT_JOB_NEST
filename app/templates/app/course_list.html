@@ -49,9 +49,13 @@
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
         
           <!-- Menu for Logged-in Users -->
+          <li><a class="dropdown-item" href="{% url 'browse_jobs' %}">Home</a></li>
           <li><a class="dropdown-item" href="{% url 'create_cv' %}">GENERATE CV</a></li>
           <li><a class="dropdown-item" href="{% url 'update_profile' %}">Update Profile</a></li>
+          <li><a class="dropdown-item" href="{% url 'create_job' %}">Create Job</a></li>
           <li><a class="dropdown-item" href="{% url 'course_list' %}">Courses List</a></li>
+          <li><a class="dropdown-item" href="{% url 'suggestions' %}">Suggessions</a></li>
+          <li><a class="dropdown-item" href="{% url 'inbox' %}">Inbox</a></li>
           <li><a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a></li>
           <li><a class="dropdown-item" href="{% url 'logout' %}">LOGOUT</a></li>
 

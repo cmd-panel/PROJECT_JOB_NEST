@@ -88,9 +88,12 @@
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
         
           <!-- Menu for Logged-in Users -->
+          <li><a class="dropdown-item" href="{% url 'browse_jobs' %}">Home</a></li>
           <li><a class="dropdown-item" href="{% url 'create_cv' %}">GENERATE CV</a></li>
           <li><a class="dropdown-item" href="{% url 'update_profile' %}">Update Profile</a></li>
+          <li><a class="dropdown-item" href="{% url 'create_job' %}">Create Job</a></li>
           <li><a class="dropdown-item" href="{% url 'course_list' %}">Courses List</a></li>
+          <li><a class="dropdown-item" href="{% url 'suggestions' %}">Suggessions</a></li>
           <li><a class="dropdown-item" href="{% url 'inbox' %}">Inbox</a></li>
           <li><a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a></li>
           <li><a class="dropdown-item" href="{% url 'logout' %}">LOGOUT</a></li>
@@ -163,7 +166,7 @@
 <!-- Bootstrap JS (optional, for interactivity) -->
 <!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>-->
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js" integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+" crossorigin="anonymous"></script>
 
 </body>

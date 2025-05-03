@@ -23,35 +23,13 @@ urlpatterns = [
     # Optional API endpoints
     path('api/add/', views.add_portfolio_api),
     path('api/update/', views.update_portfolio),
-
-
-
-
-    #nafisa
-    path('update_profile/', views.update_profile, name='update_profile'),
-    path('create_job/', views.create_job, name='create_job'),
-    path('suggestions/', views.suggestions, name='suggestions'),
-    path('chat/<str:username>/', views.chat_view, name='chat'),
-    path('inbox/', views.chat_list, name='inbox'),
-    path('messages_send/', views.messages_send, name='messages_send'),
-    path('change_password/',views.change_password, name='change_password'),
-
-    #wasib
-    path('create_cv/', views.create_cv, name='create_cv'),
-    path('applicant/', views.applicant , name='applicant'),
-    path('admin_home/', views.admin_home , name='admin_home'),
-    path('admin_post_allow/', views.admin_post_allow, name='admin_post_allow'),
-    path('admin_post_reject/', views.admin_post_reject, name='admin_post_reject'),
-
-    path('courses/', views.course_list, name='course_list'),
-    path('courses/<int:course_id>/', views.course_detail, name='course_detail'),
-    path('admin_login/', views.admin_login_view, name='admin_login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('courses/add/', views.add_course, name='add_course'),
-    path('courses/<int:course_id>/add-videos/', views.add_course_videos, name='add_course_videos'),
-    path('courses/<int:course_id>/select-video-count/', views.select_video_count, name='select_video_count'),
-    
-
+    path('benefits/', views.benefits_view, name='benefits'),
+    path('process_payment/', views.process_payment, name='process_payment'),
+    # path('users/', views.view_users, name='view_users'),
+    # path('send-request/<int:user_id>/', views.send_request, name='send_request'),
+    # path('accept-request/<int:request_id>/', views.accept_request, name='accept_request'),
+    # path('requests/', views.connection_requests, name='connection_requests'),
+    # path('my-connections/', views.my_connections, name='my_connections'),
 
 ]
 

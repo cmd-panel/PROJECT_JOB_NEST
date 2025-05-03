@@ -11,11 +11,14 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('', views.home_view, name='home'),  
+    # path('test-auth/', views.test_auth, name='test_auth'),
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('jobs/', views.browse_jobs, name='browse_jobs'),
+    
     path('applications/', views.dashboard_view, name='application_list'),
-    path('applications/add/', views.add_applicant_form, name='add_applicant_form'),
+    path('applications/add/<int:job_id>/', views.add_applicant_form, name='add_applicant_form'),
     path('applications/<int:pk>/update/', views.update_status, name='update_status'),
+    
     path('portfolio/', views.index, name='index'),
     path('portfolio/add/', views.add_portfolio, name='portfolio_add'),         # Show add form
     path('portfolio/update/<uuid:pk>/', views.update_portfolio_view, name='portfolio_update'),
@@ -23,6 +26,13 @@ urlpatterns = [
     # Optional API endpoints
     path('api/add/', views.add_portfolio_api),
     path('api/update/', views.update_portfolio),
+    
+    path('notifications/', views.notification_list, name='notification_list'),
+    path('notifications/filter/', views.filter_notifications, name='filter_notifications'),
+    path('notifications/delete/<int:pk>/', views.delete_notification, name='delete_notification'),
+    path('notifications/toggle/<int:pk>/', views.toggle_notification_read, name='toggle_notification_read'),
+    # path('applications/<int:pk>/', views.ApplicationDetailView.as_view(), name='application_detail'),
+
 
 
 
@@ -39,6 +49,8 @@ urlpatterns = [
     #wasib
     path('create_cv/', views.create_cv, name='create_cv'),
     path('applicant/', views.applicant , name='applicant'),
+    
+    path('compare_jobs/', views.compare_jobs, name='compare_jobs'),
     path('admin_home/', views.admin_home , name='admin_home'),
     path('admin_post_allow/', views.admin_post_allow, name='admin_post_allow'),
     path('admin_post_reject/', views.admin_post_reject, name='admin_post_reject'),

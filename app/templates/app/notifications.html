@@ -1,0 +1,150 @@
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* (your previous CSS remains exactly the same) */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #e0e7ff, #f3f4f6);
+            margin: 0;
+            padding: 60px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        }
+        .container:hover {
+            transform: translateY(-4px);
+          }
+        h1 {
+            font-family: 'Inter', sans-serif;
+            color: #1e3a8a;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+        .notification {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            transition: background 0.3s;
+        }
+        .notification:hover {
+            background: #eef2ff;
+        }
+        .notification-content {
+            flex-grow: 1;
+        }
+        .notification a {
+            text-decoration: none;
+            color: #1e3a8a;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .dismiss-btn, .mark-read-btn, .open-btn {
+            background: #f87171;
+            border: none;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            margin-left: 8px;
+        }
+        .dismiss-btn:hover, .mark-read-btn:hover, .open-btn:hover {
+            background: #dc2626;
+        }
+        form {
+            display: inline;
+        }
+        .filter-form {
+            display: flex;
+            margin-bottom: 30px;
+            gap: 10px;
+        }
+        .filter-form input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            font-size: 15px;
+            background-color: #f9fafb;
+        }
+        .filter-form button {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .filter-form button:hover {
+            background: linear-gradient(135deg, #4f46e5, #4338ca);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1><i class="bi bi-bell-fill"></i>Notifications</h1>
+
+    <!-- Filter Notifications -->
+    <form method="GET" action="{% url 'filter_notifications' %}" class="filter-form">
+        <input type="text" name="q" placeholder="Search notifications by keyword..." value="{{ request.GET.q }}">
+        <input type="text" name="type" placeholder="Type (e.g., Application, Job Update)" value="{{ request.GET.type }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Notifications List -->
+    {% for notification in notifications %}
+        
+        <div class="notification">
+            
+            {% comment %} <i class="bi bi-bell-fill"></i><div class="notification-content"> {% endcomment %}
+                <li style="{% if not notification.read %}font-weight: bold;{% endif %}">
+                    <strong>{{ notification.title }}</strong><br>
+                    {{ notification.message }}<br>
+                    {% if notification.link %}
+                      <a href="{{ notification.link }}" class="open-btn">Open</a>
+                    {% endif %}
+              
+                    <form method="post" action="{% url 'toggle_notification_read' notification.pk %}" style="display:inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="mark-read-btn">
+                        {% if notification.read %} Mark as Unread {% else %} Mark as Read {% endif %}
+                      </button>
+                    </form>
+            <!-- Dismiss Button -->
+            <form method="POST" action="{% url 'delete_notification' notification.id %}">
+                {% csrf_token %}
+                <button class="dismiss-btn" type="submit">Dismiss</button>
+            </form>
+        {% comment %} </div> {% endcomment %}
+    </div>
+    {% empty %}
+        <p>No notifications found.</p>
+    {% endfor %}
+
+
+</body>
+</html>

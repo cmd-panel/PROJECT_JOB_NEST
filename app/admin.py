@@ -1,9 +1,9 @@
 from django.contrib import admin
 from .models import JobPosting, CV, Profile, Application, Portfolio, Certificate, UserDetails, CourseVideo, Course, Message
+from .models import JobLocation
 
 admin.site.register(JobPosting)
-
-
+admin.site.register(JobLocation)
 
 #wasib
 admin.site.register(CV)

@@ -1,0 +1,143 @@
+{% comment %} <!DOCTYPE html>
+<html>
+<head>
+    <title>Compare Jobs</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        #map { width: 100%; height: 400px; }
+        .job-card { margin: 10px; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <h2>Compare Jobs</h2>
+
+    <div>
+        {% for job in jobs %}
+            <div class="job-card">
+                <strong>{{ job.title }}</strong><br>
+                Company: {{ job.company }}<br>
+                Salary: ${{ job.salary }}<br>
+                Hours: {{ job.working_hours }} hrs/week<br>
+                Location: {{ job.location }}<br>
+            </div>
+        {% endfor %}
+    </div>
+
+    <h3>Job Locations</h3>
+    <div id="map"></div>
+
+    <script>
+        mapboxgl.accessToken = '{{ mapbox_token }}';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [90.4125, 23.8103], // default: Dhaka
+            zoom: 5
+        });
+
+        {% for job in jobs %}
+            {% if job.geo %}
+                new mapboxgl.Marker()
+                    .setLngLat([{{ job.geo.longitude }}, {{ job.geo.latitude }}])
+                    .setPopup(new mapboxgl.Popup().setHTML(`
+                        <strong>{{ job.title }}</strong><br>
+                        {{ job.company }}<br>
+                        Salary: ${{ job.salary }}<br>
+                        Hours: {{ job.working_hours }} hrs<br>
+                        Location: {{ job.location }}
+                    `))
+                    .addTo(map);
+            {% endif %}
+        {% endfor %}
+    </script>
+</body>
+</html> {% endcomment %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Compare Jobs</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        .job-card {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 300px;
+            margin-top: 10px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <h2>Compare Jobs</h2>
+    <form method="get" style="margin-bottom: 20px;">
+        <label>Sort by:</label>
+        <select name="sort">
+            <option value="">-- Select --</option>
+            <option value="salary">Salary (High to Low)</option>
+            <option value="hours">Working Hours (Low to High)</option>
+        </select>
+    
+        <label>Min Hours:</label>
+        <input type="number" name="min_hours" min="0">
+    
+        <label>Max Hours:</label>
+        <input type="number" name="max_hours" min="0">
+    
+        <button type="submit">Apply</button>
+    </form>
+    <div>
+        {% for job in jobs %}
+            <div class="job-card">
+                <strong>{{ job.title }}</strong><br>
+                Company: {{ job.company }}<br>
+                Salary: ${{ job.salary }}<br>
+                Hours: {{ job.working_hours }} hrs/week<br>
+                Location: {{ job.location }}<br>
+
+                {% if job.geo %}
+                    <div id="map-{{ job.id }}" class="map-container"></div>
+                {% else %}
+                    <em>Location not available</em>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+    
+    <script>
+        mapboxgl.accessToken = '{{ mapbox_token }}';
+
+        document.addEventListener('DOMContentLoaded', function () {
+            {% for job in jobs %}
+                {% if job.geo %}
+                    const map{{ job.id }} = new mapboxgl.Map({
+                        container: 'map-{{ job.id }}',
+                        style: 'mapbox://styles/mapbox/streets-v11',
+                        center: [{{ job.geo.longitude }}, {{ job.geo.latitude }}],
+                        zoom: 10
+                    });
+
+                    new mapboxgl.Marker()
+                        .setLngLat([{{ job.geo.longitude }}, {{ job.geo.latitude }}])
+                        .setPopup(new mapboxgl.Popup().setHTML(`
+                            <strong>{{ job.title }}</strong><br>
+                            {{ job.company }}<br>
+                            Salary: ${{ job.salary }}<br>
+                            Hours: {{ job.working_hours }} hrs<br>
+                            Location: {{ job.location }}
+                        `))
+                        .addTo(map{{ job.id }});
+                {% endif %}
+            {% endfor %}
+        });
+    </script>
+</body>
+</html>

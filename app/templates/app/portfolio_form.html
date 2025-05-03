@@ -109,12 +109,8 @@
     <h1>Add New Portfolio</h1>
     <form action="{% url 'portfolio_add' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
-
-      <div class="form-group">
-        <label for="{{ form.user_id.id_for_label }}">User ID</label>
-        {{ form.user_id }}
-        {{ form.user_id.errors }}
-      </div>
+       
+        
 
       <div class="form-group">
         <label for="{{ form.title.id_for_label }}">Job Title</label>

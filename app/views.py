@@ -5,6 +5,11 @@ from .forms import UserRegistrationForm ,  UserLoginForm
 from .models import JobPosting, UserDetails, Message
 from .forms import JobFilterForm
 from django.db.models import Q
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt,csrf_protect
+from .models import Notification
+from django.urls import reverse
+from django.http import HttpResponseForbidden
 #wasib
 from django.contrib.auth.decorators import login_required
 from .decorators import admin_required
@@ -31,12 +36,20 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('browse_jobs')  
+            # Get the 'next' parameter from the URL or use a default
+            print(f"User authenticated: {request.user.is_authenticated}")
+            next_url = request.GET.get('next', 'browse_jobs')
+            return redirect(next_url)
+            # return redirect('browse_jobs')  
     else:
         form = UserLoginForm()
     return render(request, 'app/login.html', {'form': form})
 
-
+# def test_auth(request):
+#     if request.user.is_authenticated:
+#         return HttpResponse(f"You are authenticated as {request.user.username}")
+#     else:
+#         return HttpResponse("You are not authenticated") 
 def logout_view(request):
     logout(request)
     return redirect('login')
@@ -48,8 +61,9 @@ def dashboard_view(request):
 
 def browse_jobs(request):
     form = JobFilterForm(request.GET or None)
-    #wasib
-    jobs = JobPosting.objects.filter(status=1).order_by('-posted_at')
+    
+    #wasibjobs = JobPosting.objects.exclude(employer=request.user)
+    jobs = JobPosting.objects.filter(status=1).order_by('-posted_at').exclude(employer=request.user)
     #wasib end
 
     if form.is_valid():
@@ -77,6 +91,8 @@ def browse_jobs(request):
     }
     return render(request, 'app/browse_jobs.html', context)
 
+#SUZANA
+
 
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
@@ -84,47 +100,97 @@ from .models import Application
 from .forms import StatusUpdateForm
 from .forms import ApplicationForm
 
-def add_applicant_form(request):
+def add_applicant_form(request, job_id):
+    job = get_object_or_404(JobPosting, pk=job_id)
     if request.method == 'POST':
         form = ApplicationForm(request.POST, request.FILES)
         if form.is_valid():
             application = form.save(commit=False)
-            application.status = 'Under Review'  # Always set
+            application.applicant = request.user
+            application.job_posting = job
+            application.position = job.title
+            application.status = 'Under Review'
             application.save()
-            return redirect('application_list')  # Use correct URL name
+            return redirect('application_list')
     else:
         form = ApplicationForm()
-    return render(request, 'app/add_applicant.html', {'form': form})
+    return render(request, 'app/add_applicant.html', {'form': form, 'job': job})
 
 @login_required
 def dashboard_view(request):
-    applications = Application.objects.all()
-    return render(request, 'app/applicant_list.html', {'applications': applications})
+    from_notification = request.GET.get('from_notification') == 'true'
+    print("DEBUG: from_notification =", from_notification)
+    if not from_notification:
+        applications = Application.objects.filter(job_posting__employer=request.user)
+        jobs = JobPosting.objects.filter(employer=request.user)
+    else:
+        applications = Application.objects.filter(applicant=request.user)
+        jobs = JobPosting.objects.all() 
+         
+      # Only show their own jobs
+    # Or maybe [] if regular users shouldn't see jobs
+
+    return render(request, 'app/applicant_list.html', {
+        'applications': applications,
+        'jobs': jobs,
+        'from_notification': from_notification,
+    })
+
+# @login_required
+# #@csrf_protect 
+# def dashboard_view(request):
+    
+#     if request.user.is_staff:
+#         # Employer: Show only applications they postedapplications = Application.objects.filter(job_post__employer=request.user)
+#         applications = Application.objects.filter(job_post__employer=request.user)
+#         jobs = JobPosting.objects.all() 
+        
+#     else:
+#         applications = Application.objects.filter(applicant=request.user)
+#     return render(request, 'app/applicant_list.html', {'applications': applications, 'jobs': jobs})
 @login_required
+#@csrf_protect 
 def update_status(request, pk):
     application = get_object_or_404(Application, pk=pk)
     if request.method == 'POST':
         form = StatusUpdateForm(request.POST, instance=application)
         if form.is_valid():
-            form.save()
+            updated_application = form.save()
+            Notification.objects.create(
+                user=updated_application.applicant,
+                title="Application Status Updated",
+                message=f"Your application for '{updated_application.position}' is now '{updated_application.status}'.",
+                # Direct link to the specific applicationlink=reverse('application_detail', args=[updated_application.pk]),
+                link=reverse('application_list')+ f"?from_notification=true",  # Adjust if you have a view for this
+                type="Application"
+            )
     return redirect('application_list')  # Redirect to dashboard after update
-
+#PORTFOLIO
 from .models import Portfolio, Certificate
 from .forms import PortfolioForm
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 import json
 
+@login_required
 # Show portfolio list with update/delete forms
 def index(request):
-    portfolios = Portfolio.objects.all()
+    if request.user.is_staff:
+        # Employer: Show only applications they postedapplications = Application.objects.filter(job_post__employer=request.user)
+        portfolios = Portfolio.objects.all()
+        
+    else:
+        
+        portfolios = Portfolio.objects.filter(user_id=request.user)
     return render(request, 'app/portfolio_list.html', {'data': portfolios})
 
+@login_required
 def add_portfolio(request):
     if request.method == 'POST':
         form = PortfolioForm(request.POST, request.FILES)
         if form.is_valid():
-            portfolio = form.save()
+            portfolio = form.save(commit=False)  # Create the portfolio but don't save to the database yet
+            portfolio.user_id = request.user  # Set the user field
+            portfolio.save()  # Now save the portfolio to the database
             for file in request.FILES.getlist('certificates'):
                 Certificate.objects.create(portfolio=portfolio, image=file)
             return redirect('index')  # <-- Redirect after successful POST
@@ -134,19 +200,38 @@ def add_portfolio(request):
         form = PortfolioForm()
     return render(request, 'app/portfolio_form.html', {'form': form})
 
-
+@login_required
 def update_portfolio_view(request, pk):
     portfolio = get_object_or_404(Portfolio, pk=pk)
     if request.method == 'POST':
         form = PortfolioForm(request.POST, request.FILES, instance=portfolio)
         if form.is_valid():
+            deleted_count = 0
+            # Handle certificate deletions
+            for cert in portfolio.certificates.all():
+               if f'delete_cert_{cert.id}' in request.POST:
+                   print(f"Deleting certificate: {cert.id}")
+                   cert.delete()
+                   deleted_count += 1
+            if deleted_count > 0:
+                messages.success(request, f"{deleted_count} certificate(s) deleted successfully!")
             form.save()
+            
+
             for file in request.FILES.getlist('certificates'):
                 Certificate.objects.create(portfolio=portfolio, image=file)
         else:
             print("Update form errors:", form.errors)
     return redirect('index')
-
+from django.contrib import messages
+def delete_portfolio(request, pk):
+    if request.method == 'POST':
+        portfolio = get_object_or_404(Portfolio, pk=pk)
+        portfolio.delete()
+        messages.success(request, "Portfolio deleted successfully!")  
+        return redirect('index')
+    else:
+        return JsonResponse({"error": "Invalid request method"}, status=400)
 
 @csrf_exempt
 def add_portfolio_api(request):
@@ -179,26 +264,67 @@ def update_portfolio(request):
             return JsonResponse({"error": str(e)}, status=400)
     return JsonResponse({"error": "Only POST requests allowed"}, status=405)
 
-@csrf_exempt
-def delete_portfolio(request, pk):
-    try:
-        portfolio = get_object_or_404(Portfolio, pk=pk)
-        portfolio.delete()
-        return JsonResponse({"message": "Portfolio deleted successfully"})
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
-    
+# @csrf_exempt
+# def delete_portfolio(request, pk):
+#     try:
+#         portfolio = get_object_or_404(Portfolio, pk=pk)
+#         portfolio.delete()
+#         return JsonResponse({"message": "Portfolio deleted successfully"})
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)}, status=400)
+#NOTIFICATION
+from django.db.models import Q
+def notification_list(request):
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'app/notifications.html', {'notifications': notifications})
+
+from django.db.models import Q
+
+def filter_notifications(request):
+    query = request.GET.get('q', '')
+    notif_type = request.GET.get('type', '')  # <-- NEW: get type from URL
+
+    filters = Q(user=request.user)
+
+    if query:
+        filters &= Q(title__icontains=query) | Q(message__icontains=query)
+
+    if notif_type:
+        filters &= Q(type=notif_type)  # <-- NEW: filter by type
+
+    notifications = Notification.objects.filter(filters).order_by('-created_at')
+
+    return render(request, 'app/notifications.html', {
+        'notifications': notifications,
+        'query': query,
+        'notif_type': notif_type,  # pass notif_type back if you need to show selected type
+    })
+
+from django.shortcuts import redirect
+
+def delete_notification(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, user=request.user)
+    notification.delete()
+    return redirect('notification_list')
+
+def toggle_notification_read(request, pk):
+    notification = get_object_or_404(Notification, pk=pk, user=request.user)
+    notification.read = not notification.read
+    notification.save()
+    return redirect('notification_list')  # or wherever you render the list
+
+
 
 
 
 
 
 #nafisa
-@login_required
-def update_profile(request):
+from .models import UserDetails
+
+def update_profile(request): 
     if request.method == "GET":
         return render(request, 'app/update_profile.html', {})
-
     elif request.method == "POST":
         profile_picture = request.FILES.get("profile_picture")
         bio = request.POST.get("bio")
@@ -206,7 +332,6 @@ def update_profile(request):
         skills = request.POST.get("skills")
         date_of_birth = request.POST.get("date_of_birth")
         location = request.POST.get("location")
-
         my_id = request.user
         new_obj = UserDetails.objects.filter(user_id=my_id).first()
 
@@ -233,31 +358,142 @@ def update_profile(request):
         return redirect('browse_jobs')  
 
     return render(request, 'app/update_profile.html', {})
+# @login_required
+# def update_profile(request):
+#     
+#         print("DEBUG: GET request received.")
+#         
+
+#         return render(request, 'app/update_profile.html', {})
+
+#     
+#         print("DEBUG: POST request received.")
+
+#         profile, created = UserDetails.objects.get_or_create(user_id=request.user)
+#         if created:
+#             print(f"DEBUG: Created new UserDetails for user {request.user.username} (ID: {request.user.id})")
+#         else:
+#             print(f"DEBUG: Found existing UserDetails for user {request.user.username} (ID: {request.user.id})")
+
+#         if request.FILES.get("profile_picture"):
+#             profile.profile_picture = request.FILES["profile_picture"]
+#             print("DEBUG: Profile picture updated.")
+
+#         if request.POST.get("bio"):
+#             profile.bio = request.POST["bio"]
+#             print("DEBUG: Bio updated.")
+
+#         if request.POST.get("skills"):
+#             profile.skills = request.POST["skills"]
+#             print("DEBUG: Skills updated.")
+
+#         if request.POST.get("location"):
+#             profile.location = request.POST["location"]
+#             print("DEBUG: Location updated.")
+
+#         if request.POST.get("date_of_birth"):
+#             profile.date_of_birth = request.POST["date_of_birth"]
+#             print("DEBUG: Date of birth updated.")
+
+#         profile.save()
+#         print("DEBUG: Profile successfully saved.")
+#         return redirect('update_profile')
+
+
+
+#         # profile_picture= request.POST.get("profile_picture")
+
+#         # bio= request.POST.get("bio")
+
+#         # skills= request.POST.get("skills")
+
+#         # date_of_birth= request.POST.get("date_of_birth")
+
+#         location= request.POST.get("location")
+#         
+
+        
+        # # my_id= request.user.id new_obj= UserDetails.objects.filter()id=my_id
+        # new_obj=UserDetails.objects.filter(user_id=request.user)
+
+        # new_obj.update(profile_picture=profile_picture, bio=bio, skills= skills, date_of_birth=date_of_birth)
+        
 
 
 @login_required
 def create_job(request):
     if request.method == "GET":
         return render(request, 'app/create_job.html', {})
-    
     elif request.method == "POST":
         title= request.POST.get("title")
 
         company= request.POST.get("company")
+        
+        salary = request.POST.get("salary")
+        
+        working_hours = request.POST.get("working_hours")
 
-        location= request.POST.get("location")
+        location= request.POST.get("location", "").strip()
 
         category= request.POST.get("category")
 
         experience= request.POST.get("experience")
 
-        my_user=request.user
-
-        JobPosting.objects.create(posted_by= my_user, title=title, company=company, location=location, category=category, experience_level=experience)
+        job=JobPosting.objects.create(title=title, salary=salary, working_hours=working_hours,company=company, location=location, category=category, experience_level=experience, employer=request.user)
+        #SUZANA
         
+
+        matching_users = UserDetails.objects.filter(skills__icontains=category).exclude(user_id=job.employer)
+
+        for user_detail in matching_users:
+            Notification.objects.create(
+                user=user_detail.user_id,
+                title="New Job Alert",
+                message=f"A new job '{title}' matching your skills has been posted.",
+                link=reverse('browse_jobs'),
+                type='Job Update'
+            )
+        # Get geo coordinates
+        lat, lng = geocode_location(location)
+        if lat and lng:
+            JobLocation.objects.create(job=job, latitude=lat, longitude=lng)
         return redirect ('browse_jobs')
 
-    return render(request, 'app/create_job.html', {})
+    return redirect('create_job')
+#SUZANA
+def compare_jobs(request):
+    jobs = JobPosting.objects.all().select_related('geo')
+    sort_by = request.GET.get("sort")
+    min_hours = request.GET.get("min_hours")
+    max_hours = request.GET.get("max_hours")
+
+    if min_hours:
+        jobs = jobs.filter(working_hours__gte=int(min_hours))
+    if max_hours:
+        jobs = jobs.filter(working_hours__lte=int(max_hours))
+
+    if sort_by == "salary":
+        jobs = jobs.order_by("-salary")
+    elif sort_by == "hours":
+        jobs = jobs.order_by("working_hours")
+
+    return render(request, 'app/compare_jobs.html', {'jobs': jobs, 'mapbox_token': MAPBOX_ACCESS_TOKEN})
+
+import requests
+from .models import JobPosting, JobLocation
+
+MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic3N1emFuYTQ0IiwiYSI6ImNtYTJxMDM4ajI5azcybHBwNHd1d2tsbnYifQ.UH_K-8ytJKiyU6OHtOvAkw'
+
+def geocode_location(location):
+    url = f"https://api.mapbox.com/geocoding/v5/mapbox.places/{location}.json"
+    params = {"access_token": MAPBOX_ACCESS_TOKEN}
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    if response.status_code == 200 and data["features"]:
+        longitude, latitude = data["features"][0]["center"]
+        return longitude,latitude
+    return None, None
 
 
 @login_required
@@ -334,6 +570,7 @@ def create_cv(request):
     return render(request, 'app/cv_form.html', {'form': form})
 
 
+from .forms import ApplicationForm1
 @login_required
 def applicant(request):
     if request.method == 'POST':

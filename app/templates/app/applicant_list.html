@@ -90,8 +90,8 @@
 <body>
     <div class="container">
         <h1>Applicant Dashboard</h1>
-
-        <a href="{% url 'add_applicant_form' %}" class="add-btn">+ Add Applicant</a>
+        {% comment %} <a href="{% url 'add_applicant_form' job.id %}" class="add-btn">+ Add Applicant</a> {% endcomment %}
+        {% comment %}add_applicant_form  {% endcomment %}
 
         <table>
             <tr>
@@ -99,7 +99,11 @@
                 <th>Position</th>
                 <th>Resume</th>
                 <th>Status</th>
-                <th>Update</th>
+                {% if not from_notification %}
+                  <th>Update</th>
+                {%else%}
+                  <th>      </th>
+                {% endif %}
             </tr>
 
             {% for app in applications %}
@@ -109,15 +113,20 @@
                 <td><a href="{{ app.resume.url }}">Download</a></td>
                 <td>{{ app.status }}</td>
                 <td>
+                  <!-- Show the update button only if the user is an employer -->
+                  {% if not from_notification %}
+                  <!-- Only show the button for the application related to the logged-in employer -->
                     <form method="post" action="{% url 'update_status' app.id %}">
                         {% csrf_token %}
                         <select name="status">
                             <option value="Under Review" {% if app.status == "Under Review" %}selected{% endif %}>Under Review</option>
                             <option value="Shortlisted" {% if app.status == "Shortlisted" %}selected{% endif %}>Shortlisted</option>
                             <option value="Rejected" {% if app.status == "Rejected" %}selected{% endif %}>Rejected</option>
+                            <option value="Hired" {% if app.status == "Hired" %}selected{% endif %}>Hired</option>
                         </select>
                         <button type="submit">Update</button>
                     </form>
+                  {% endif %}
                 </td>
             </tr>
             {% endfor %}

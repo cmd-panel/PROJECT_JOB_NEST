@@ -188,7 +188,9 @@
         <div class="line line-password"></div>
 
         <div class="eye-icon"></div>
-
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
         <button type="submit">Log in</button>
         
     </form>

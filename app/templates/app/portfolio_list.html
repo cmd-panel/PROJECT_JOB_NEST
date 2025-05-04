@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>My Portfolios</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -169,22 +170,23 @@
     }
   </script>
 </head>
-<body>
+<body> 
   <div class="container">
-    <h1>Your Portfolio Entries</h1>
-    <a href="{% url 'portfolio_add' %}" class="btn-add">+ Add New Portfolio</a>
-
+    <h1>Portfolio Entries</h1>
+    {% if not user.is_staff %}
+     <a href="{% url 'portfolio_add' %}" class="btn-add">+ Add New Portfolio</a>
+    {% endif %}
     {% for item in data %}
       <div class="section">
-        <h2>Job Description</h2>
+        <h2><i class="bi bi-briefcase" style="font-size: 2rem; color: #0d6efd;"></i>Job Description</h2>
         <p><strong>{{ item.title }}</strong></p>
         <p>{{ item.description }}</p>
 
-        <h2>Project Links</h2>
+        <h2><i class="bi bi-clipboard-check" style="font-size: 2rem; color: #0d6efd;"></i>Project Links</h2>
         <a href="{{ item.link }}" class="link" target="_blank">{{ item.link }}</a>
 
         {% if item.certificates.all %}
-          <h2>Certificates</h2>
+          <h2><i class="bi bi-award" style="font-size: 2rem; color: #0d6efd;"></i>Certificates</h2>
           <div class="certificates">
             {% for cert in item.certificates.all %}
               <img src="{{ cert.image.url }}" alt="Certificate">
@@ -192,35 +194,52 @@
           </div>
         {% endif %}
 
-        <form method="post" action="{% url 'portfolio_delete' item.id %}">
-          {% csrf_token %}
-          <button class="btn-delete" type="submit">Delete</button>
-        </form>
+        {% if not user.is_staff %}
+          <form method="post" action="{% url 'portfolio_delete' item.id %}">
+            {% csrf_token %}
+            <button class="btn-delete" type="submit">Delete</button>
+          </form>
 
-        <button class="btn-toggle" onclick="toggleForm('{{ item.id }}')">Update</button>
+          <button class="btn-toggle" onclick="toggleForm('{{ item.id }}')">Update</button>
 
-        <!-- Update Form -->
-        <form method="post" action="{% url 'portfolio_update' item.id %}" enctype="multipart/form-data" id="update-form-{{ item.id }}" class="update-form">
-          {% csrf_token %}
-          <input type="hidden" name="user_id" value="{{ item.user_id }}">
-          <div class="form-group">
-            <label for="title">Update Job Title:</label>
-            <input type="text" name="title" value="{{ item.title }}" required>
-          </div>
-          <div class="form-group">
-            <label for="description">Update Job Experiences:</label>
-            <textarea name="description" rows="2" required>{{ item.description }}</textarea>
-          </div>
-          <div class="form-group">
-            <label for="link">Add More Projects:</label>
-            <input type="url" name="link" value="{{ item.link }}" required>
-          </div>
-          <div class="form-group">
-            <label for="certificates">Add More Certificates:</label>
-            <input type="file" name="certificates" multiple>
-          </div>
-          <button class="btn-update" type="submit">Update</button>
-        </form>
+          <!-- Update Form -->
+          <form method="post" action="{% url 'portfolio_update' item.id %}" enctype="multipart/form-data" id="update-form-{{ item.id }}" class="update-form">
+            {% csrf_token %}
+            <input type="hidden" name="user_id" value="{{ item.user_id }}">
+            <div class="form-group">
+              <label for="title">Update Job Title:</label>
+              <input type="text" name="title" value="{{ item.title }}" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Update Job Experiences:</label>
+              <textarea name="description" rows="2" required>{{ item.description }}</textarea>
+            </div>
+            <div class="form-group">
+              <label for="link">Add More Projects:</label>
+              <input type="url" name="link" value="{{ item.link }}" required>
+            </div>
+            <div class="form-group">
+              <label for="certificates">Add More Certificates:</label>
+              <input type="file" name="certificates" multiple>
+            </div>
+            {% if item.certificates.all %}
+              <h2>Existing Certificates</h2>
+              <div class="certificates">
+                {% for cert in item.certificates.all %}
+                  <div>
+                    <img src="{{ cert.image.url }}" alt="Certificate" width="120" />
+                    <label>
+                      <input type="checkbox" name="delete_cert_{{ cert.id }}" id="delete_cert_{{ cert.id }}">
+                      Delete
+                    </label>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <button class="btn-update" type="submit">Update</button>
+          </form>
+        {% endif %}
+
       </div>
     {% empty %}
       <p>No portfolios found.</p>

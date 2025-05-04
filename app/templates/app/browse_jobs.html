@@ -217,7 +217,39 @@
         
             </form>
         </div>
-        
+
+        <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
+            Filter
+        </button>
+    </form>
+
+    <ul class="space-y-6">
+        {% for job in jobs %}
+            <li class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-xl font-semibold text-gray-900">{{ job.title }}</h3>
+                <p class="text-gray-700">{{ job.company }}</p>
+                <p class="text-sm text-gray-600 mt-1">
+                    📍 {{ job.location }} | 🏷️ {{ job.category }} | 🎓 {{ job.experience_level }}
+                </p>
+                <p class="text-xs text-gray-400 mt-2">📅 Posted: {{ job.posted_at|date:"Y-m-d" }}</p>
+
+                <!--  wasib  -->
+            <div class="card-footer bg-white text-center py-3">
+                    
+                    <form method="GET" class="d-inline" action="{% url 'applicant' %}">
+                        {% csrf_token %}
+                        {% comment %} <input type="hidden" name="job_id" value="{{ job.id }}"> {% endcomment %}
+                        
+                        <button type="submit" class="btn btn-danger px-4">Apply</button>
+                    </form>
+             </div>
+
+
+            <!--  wasib  -->
+
+            </li>
+
+
 
     
         <!-- Main Content: Job Listings -->

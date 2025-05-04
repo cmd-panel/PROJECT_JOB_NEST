@@ -124,3 +124,7 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_URL = 'login'  # This should match your login URL name in urls.py
+
+MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoic3N1emFuYTQ0IiwiYSI6ImNtYTJxMDM4ajI5azcybHBwNHd1d2tsbnYifQ.UH_K-8ytJKiyU6OHtOvAkw'

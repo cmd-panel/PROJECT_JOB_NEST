@@ -15,8 +15,11 @@ class Profile(models.Model):
     
 
 class JobPosting(models.Model):
+    employer = models.ForeignKey(User, on_delete=models.CASCADE, default=1)#DO NOT REMOVE
     title = models.CharField(max_length=200)
     company = models.CharField(max_length=200)
+    salary = models.DecimalField(max_digits=10, decimal_places=2,default=0.00)
+    working_hours = models.IntegerField(default=0)
     location = models.CharField(max_length=100)
     category = models.CharField(max_length=100)
     experience_level = models.CharField(max_length=50)
@@ -24,10 +27,19 @@ class JobPosting(models.Model):
     posted_at = models.DateTimeField(auto_now_add=True)
     #wasib
     status = models.IntegerField(default=0)
-    posted_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    # posted_by = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.title} at {self.company}"
+#SUZANA
+class JobLocation(models.Model):
+    job = models.OneToOneField(JobPosting, on_delete=models.CASCADE, related_name="geo")
+    latitude = models.FloatField()
+    longitude = models.FloatField()   
+    
+#SUZANA
+#APPLICATION
+from django.contrib.auth.models import User
 
 
 
@@ -37,22 +49,23 @@ class Application(models.Model):
         ('Under Review', 'Under Review'),
         ('Shortlisted', 'Shortlisted'),
         ('Rejected', 'Rejected'),
+        ('Hired', 'Hired'),
     ]
     applicant = models.ForeignKey(User, on_delete=models.CASCADE)
+    job_posting = models.ForeignKey(JobPosting, on_delete=models.CASCADE, null=True)#DO NOT CHANGE
     position = models.CharField(max_length=100)
     resume = models.FileField(upload_to='resumes/')  # optional, if used
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Under Review')
-    #wasib it can be used or by default it will be none
-    job_id = models.ForeignKey(JobPosting, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return f"{self.applicant.username} - {self.position}"
+#PORTFOLIO   
+import uuid
+from django.db import models
     
-
-
 class Portfolio(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user_id = models.CharField(max_length=100)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     description = models.TextField()
     link = models.TextField(help_text="Separate multiple links with commas")
@@ -67,7 +80,24 @@ class Certificate(models.Model):
     def __str__(self):
         return f"Certificate for {self.portfolio.title}"
 
-##Mayami##
+#NOTIFICATION
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ('Application', 'Application'),
+        ('Job Update', 'Job Update'),
+        ('Connection Request', 'Connection Request'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    link = models.URLField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read = models.BooleanField(default=False)  # New field
+    type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='Application')  # <<< ADD THIS LINE
+
+    def __str__(self):
+        return f"{self.user.username} - {self.title}"
+
 class PremiumSubscription(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     plan = models.CharField(max_length=50)
@@ -94,6 +124,7 @@ class Connection(models.Model):
     
 
     
+
 
     
 
@@ -124,8 +155,8 @@ class UserDetails(models.Model):
     date_of_birth = models.DateField(blank=True, null=True)
     user_type = models.CharField(max_length=100, choices=[('admin', 'Admin'), ('user', 'User'), ('premium_user', 'Premium')], default='user')
 
-    def __str__(self):
-        return self.name
+    # def __str__(self):
+    #     return self.name
 
 class Course(models.Model):
     title = models.CharField(max_length=200)

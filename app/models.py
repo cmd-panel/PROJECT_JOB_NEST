@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 import uuid
 from django.db import models
 
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     resume = models.FileField(upload_to='resumes/', null=True, blank=True)
@@ -78,6 +79,7 @@ class Certificate(models.Model):
 
     def __str__(self):
         return f"Certificate for {self.portfolio.title}"
+
 #NOTIFICATION
 class Notification(models.Model):
     TYPE_CHOICES = [
@@ -95,6 +97,35 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.title}"
+
+class PremiumSubscription(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    plan = models.CharField(max_length=50)
+    bkash_number = models.CharField(max_length=20)
+    subscribed_on = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan}"
+    
+
+
+class Connection(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_requests', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_requests', on_delete=models.CASCADE)
+    is_accepted = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('sender', 'receiver')
+
+    def __str__(self):
+        status = "Accepted" if self.is_accepted else "Pending"
+        return f"{self.sender} -> {self.receiver} ({status})"
+    
+
+    
+
+
     
 
 #wasib 

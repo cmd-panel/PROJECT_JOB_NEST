@@ -5,16 +5,26 @@ from .forms import UserRegistrationForm ,  UserLoginForm
 from .models import JobPosting, UserDetails, Message
 from .forms import JobFilterForm
 from django.db.models import Q
+
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt,csrf_protect
 from .models import Notification
 from django.urls import reverse
 from django.http import HttpResponseForbidden
+
+from django.contrib.auth.decorators import login_required
+from .models import PremiumSubscription
+from django.contrib import messages
+from django.http import HttpResponse
+from .models import Connection
+
 #wasib
 from django.contrib.auth.decorators import login_required
 from .decorators import admin_required
 #end wasib
 
+
+#Mayami
 def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST, request.FILES)
@@ -90,6 +100,7 @@ def browse_jobs(request):
         'jobs': jobs
     }
     return render(request, 'app/browse_jobs.html', context)
+#Mayami end
 
 #SUZANA
 
@@ -665,7 +676,7 @@ def admin_login_view(request):
                     return redirect('browse_jobs')
             else:
                 return redirect('browse_jobs')
-              
+    
     else:
         form = UserLoginForm()
     return render(request, 'app/admin_login.html', {'form': form})
@@ -834,3 +845,95 @@ def change_password(request):
 #end nafisa
 
 
+
+##Payment_Mayami##
+
+@login_required
+def benefits_view(request):
+    return render(request, 'app/benefits.html')
+
+# @login_required
+# def process_payment(request):
+#     if request.method == 'POST':
+#         plan = request.POST.get('plan')
+#         amount = request.POST.get('amount')
+#         bkash_number = request.POST.get('bkash_number')
+
+#         # process/store the payment info here
+#         print(f"Received Payment - Plan: {plan}, Amount: {amount}, bKash Number: {bkash_number}")
+
+#         return redirect('browse_jobs')  
+#     return HttpResponse("Invalid request.")
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
+from django.contrib import messages
+
+@login_required
+def process_payment(request):
+    plan = request.POST.get('plan')
+    amount = request.POST.get('amount')
+    bkash_number = request.POST.get('bkash_number')
+
+    # Validate inputs
+    if not plan or not amount or not bkash_number or len(bkash_number) != 11 or not bkash_number.isdigit():
+        messages.error(request, "Invalid input. Please try again.")
+        return redirect('benefits') 
+
+    
+    #Payment.objects.create(user=request.user, plan=plan, amount=amount, bkash_number=bkash_number) #database update
+
+ 
+    request.session['payment_success'] = True
+
+    return redirect('browse_jobs') 
+
+
+
+# #Connection
+# @login_required
+# def send_request(request, user_id):
+#     receiver = get_object_or_404(User, id=user_id)
+#     if request.user != receiver:
+#         Connection.objects.get_or_create(sender=request.user, receiver=receiver)
+#     return redirect('view_users')
+
+# @login_required
+# def accept_request(request, request_id):
+#     connection = get_object_or_404(Connection, id=request_id, receiver=request.user)
+#     connection.is_accepted = True
+#     connection.save()
+#     return redirect('connection_requests')
+
+# @login_required
+# def connection_requests(request):
+#     requests = Connection.objects.filter(receiver=request.user, is_accepted=False)
+#     return render(request, 'connections/requests.html', {'requests': requests})
+
+# @login_required
+# def view_users(request):
+#     users = User.objects.exclude(id=request.user.id)
+#     sent_requests = Connection.objects.filter(sender=request.user)
+#     received_requests = Connection.objects.filter(receiver=request.user)
+#     connections = Connection.objects.filter(
+#         models.Q(sender=request.user) | models.Q(receiver=request.user),
+#         is_accepted=True
+#     )
+#     context = {
+#         'users': users,
+#         'sent_requests': sent_requests,
+#         'received_requests': received_requests,
+#         'connections': connections
+#     }
+#     return render(request, 'connections/users.html', context)
+
+# from django.db.models import Q
+
+# @login_required
+# def my_connections(request):
+#     connections = Connection.objects.filter(
+#         Q(sender=request.user) | Q(receiver=request.user),
+#         is_accepted=True
+#     )
+#     return render(request, 'app/my_connections.html', {'connections': connections})
+
+# #Mayami end

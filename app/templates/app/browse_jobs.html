@@ -1,76 +1,223 @@
-<!--  WASIB  -->
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.min.js" integrity="sha384-VQqxDN0EQCkWoxt/0vsQvZswzTHUVOImccYmSyhJTp7kGtPed0Qcx8rK9h9YEgx+" crossorigin="anonymous"></script>     
-</head>
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-  <div class="container">
-  <a class="navbar-brand fw-bold" href="{% url 'index' %}">
-      <!-- Replace with your logo or text -->
-      
-    </a>
-         
-    <!-- Right: Dropdown Menu -->
-    <div class="dropdown">
-      <button class="btn btn-light dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-        <!-- Bootstrap Icon (person icon) -->
-        <i class="bi bi-person-circle"></i>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-        
-          <!-- Menu for Logged-in Users -->
-          <li><a class="dropdown-item" href="{% url 'browse_jobs' %}">Home</a></li>
-          <li><a class="dropdown-item" href="{% url 'create_cv' %}">GENERATE CV</a></li>
-          <li><a class="dropdown-item" href="{% url 'update_profile' %}">Update Profile</a></li>
-          <li><a class="dropdown-item" href="{% url 'create_job' %}">Create Job</a></li>
-          <li><a class="dropdown-item" href="{% url 'course_list' %}">Courses List</a></li>
-          <li><a class="dropdown-item" href="{% url 'suggestions' %}">Suggessions</a></li>
-          <li><a class="dropdown-item" href="{% url 'inbox' %}">Inbox</a></li>
-          <li><a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a></li>
-          <li><a class="dropdown-item" href="{% url 'logout' %}">LOGOUT</a></li>
 
 
-        
-        
-      </ul>
-    </div>
-  </div>
-</nav>
 
-<!-- END WASIB -->
+    
 
-
-<!-- <h2>Browse Jobs</h2>
-<form method="get">
-    {{ form.as_p }}
-    <button type="submit">Filter</button>
-</form>
-
-<ul>
-    {% for job in jobs %}
-        <li>
-            <strong>{{ job.title }}</strong> at {{ job.company }}<br>
-            Location: {{ job.location }} | Category: {{ job.category }} | Experience: {{ job.experience_level }}<br>
-            Posted: {{ job.posted_at|date:"Y-m-d" }}
-        </li>
-    {% empty %}
-        <li>No jobs found.</li>
-    {% endfor %}
-</ul> -->
-<div class="max-w-4xl mx-auto p-6">
-    <h2 class="text-3xl font-bold mb-6 text-gray-800">Browse Jobs</h2>
-
-    <form method="get" class="bg-white shadow-md rounded-lg p-4 mb-8">
-        <div class="space-y-4">
-            {{ form.as_p }}
+    <!-- Header -->
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Browse Jobs</title>
+        <style>
+            body {
+                margin: 0;
+                font-family: 'Itim', cursive;
+                background: #FFFFFF;
+            }
+    
+            /* Header */
+            .header {
+                width: 100%;
+                height: 128px;
+                background: #D1D7E8;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 50px;
+                box-sizing: border-box;
+            }
+    
+            .logo {
+                font-size: 48px;
+                color: #343669;
+            }
+    
+            .profile {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+    
+            .profile-pic {
+                width: 85px;
+                height: 84px;
+                background: #EDEAEA;
+                border-radius: 50%;
+            }
+    
+            .profile-text {
+                margin-top: 5px;
+                font-size: 24px;
+                color: #343669;
+            }
+    
+            /* Sidebar */
+            .sidebar {
+                position: absolute;
+                top: 158px;
+                left: 31px;
+                width: 316px;
+                background: #D1D7E8;
+                padding: 20px;
+                box-sizing: border-box;
+                border-radius: 16px;
+            }
+    
+            .sidebar h2 {
+                font-size: 24px;
+                color: #343669;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+    
+            .filter-form label {
+                font-size: 18px;
+                color: #343669;
+                margin-bottom: 5px;
+                display: block;
+            }
+    
+            .filter-form input {
+                width: 100%;
+                padding: 8px 10px;
+                margin-bottom: 15px;
+                border: none;
+                border-radius: 8px;
+                background: #EDEAEA;
+                font-size: 16px;
+                box-sizing: border-box;
+            }
+    
+            .filter-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-top: 10px;
+            }
+    
+            .filter-buttons button,
+            .filter-buttons a {
+                width: 100%;
+                padding: 10px;
+                background: #99ABD5;
+                color: #FFE8E8;
+                font-size: 24px;
+                border: none;
+                text-align: center;
+                cursor: pointer;
+                border-radius: 8px;
+                text-decoration: none;
+            }
+    
+            .filter-buttons a {
+                background: #FF6B6B;
+            }
+    
+            .filter-buttons button:hover {
+                background: #889bc8;
+            }
+    
+            .filter-buttons a:hover {
+                background: #ff4c4c;
+            }
+    
+            /* Main Content */
+            .job-listings {
+                position: absolute;
+                top: 158px;
+                left: 380px;
+                right: 30px;
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+    
+            .job-card {
+                background: #D1D7E8;
+                border-radius: 16px;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+    
+            .job-title {
+                font-size: 32px;
+                color: #343669;
+                margin-bottom: 10px;
+            }
+    
+            .job-company {
+                font-size: 22px;
+                color: #5a5a89;
+                margin-bottom: 8px;
+            }
+    
+            .job-category, .job-location, .job-experience {
+                font-size: 20px;
+                color: #343669;
+                margin-bottom: 5px;
+            }
+    
+            .job-description {
+                margin-top: 10px;
+                background: #EDEAEA;
+                border-radius: 16px;
+                padding: 10px;
+                font-size: 18px;
+                color: #000000;
+            }
+    
+            .no-jobs {
+                font-size: 24px;
+                color: #343669;
+                margin-top: 50px;
+                text-align: center;
+            }
+        </style>
+    </head>
+    
+    <body>
+    
+<!-- Header -->
+<div class="header">
+    <div class="logo">JobNest</div>
+    <div class="profile">
+        <div class="profile-pic"></div>
+        <div class="profile-text">
+            Profile
+            {% if request.user.premiumsubscription %}
+                <div style="font-size:18px; color:green;">Premium Member</div>
+            {% endif %}
         </div>
+    </div>
+</div>
+
+        <!-- Sidebar: Filters -->
+        <div class="sidebar">
+            <h2>Filter Jobs</h2>
+            <form method="get" class="filter-form">
+        
+                <label for="id_location">Location</label>
+                <input type="text" name="location" id="id_location" value="{{ request.GET.location }}" placeholder="Enter location">
+        
+                <label for="id_category">Category</label>
+                <input type="text" name="category" id="id_category" value="{{ request.GET.category }}" placeholder="Enter category">
+        
+                <label for="id_experience_level">Experience Level</label>
+                <input type="text" name="experience_level" id="id_experience_level" value="{{ request.GET.experience_level }}" placeholder="Enter experience level">
+        
+                <label for="id_keyword">Keyword</label>
+                <input type="text" name="keyword" id="id_keyword" value="{{ request.GET.keyword }}" placeholder="Enter keyword">
+        
+                <div class="filter-buttons">
+                    <button type="submit">Search</button>
+                    <a href="{% url 'browse_jobs' %}">Clear Filters</a>
+                    <a href="{% url 'benefits' %}" style="background: #28a745;">Get Premium</a>
+                </div>
+        
+            </form>
+        </div>
+
         <button type="submit" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded">
             Filter
         </button>
@@ -103,9 +250,26 @@
             </li>
 
 
-            
-        {% empty %}
-            <li class="text-gray-500">No jobs found.</li>
-        {% endfor %}
-    </ul>
-</div>
+
+    
+        <!-- Main Content: Job Listings -->
+        <div class="job-listings">
+            {% if jobs %}
+                {% for job in jobs %}
+                    <div class="job-card">
+                        <div class="job-title">{{ job.title }}</div>
+                        <div class="job-company">{{ job.company }}</div>
+                        <div class="job-category">Category: {{ job.category }}</div>
+                        <div class="job-location">Location: {{ job.location }}</div>
+                        <div class="job-experience">Experience: {{ job.experience_level }}</div>
+                        <div class="job-description">{{ job.description|truncatewords:30 }}</div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-jobs">No job postings found.</div>
+            {% endif %}
+        </div>
+    
+    </body>
+    </html>
+    

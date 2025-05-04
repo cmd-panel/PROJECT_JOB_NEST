@@ -26,6 +26,7 @@ urlpatterns = [
     # Optional API endpoints
     path('api/add/', views.add_portfolio_api),
     path('api/update/', views.update_portfolio),
+
     
     path('notifications/', views.notification_list, name='notification_list'),
     path('notifications/filter/', views.filter_notifications, name='filter_notifications'),
@@ -63,6 +64,15 @@ urlpatterns = [
     path('courses/<int:course_id>/add-videos/', views.add_course_videos, name='add_course_videos'),
     path('courses/<int:course_id>/select-video-count/', views.select_video_count, name='select_video_count'),
     
+
+
+    path('benefits/', views.benefits_view, name='benefits'),
+    path('process_payment/', views.process_payment, name='process_payment'),
+    # path('users/', views.view_users, name='view_users'),
+    # path('send-request/<int:user_id>/', views.send_request, name='send_request'),
+    # path('accept-request/<int:request_id>/', views.accept_request, name='accept_request'),
+    # path('requests/', views.connection_requests, name='connection_requests'),
+    # path('my-connections/', views.my_connections, name='my_connections'),
 
 
 ]
